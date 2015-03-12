@@ -1,0 +1,366 @@
+DROP TABLE CONTACT_PERSON CASCADE CONSTRAINTS ;
+DROP TABLE INTEREST CASCADE CONSTRAINTS ;
+DROP TABLE OFFER CASCADE CONSTRAINTS ;
+DROP TABLE PROPERTY CASCADE CONSTRAINTS ;
+DROP TABLE SALES_AGENTS CASCADE CONSTRAINTS ;
+DROP TABLE BRANCH_OFFICE CASCADE CONSTRAINTS ;
+DROP TABLE BUYER CASCADE CONSTRAINTS ;
+
+DROP SEQUENCE INTEREST_I_Id_SEQ;
+DROP SEQUENCE CONTACT_PERSON_CP_Id_SEQ;
+DROP SEQUENCE OFFER_Offer_Id_SEQ;
+DROP TABLE SELLERS CASCADE CONSTRAINTS ;
+DROP SEQUENCE BRANCH_OFFICE_Office_Id_SEQ;
+
+
+
+CREATE TABLE BUYER
+  (
+    Buyer_Id   INTEGER NOT NULL ,
+    First_Name VARCHAR2 (50) ,
+    Last_Name  VARCHAR2 (50) ,
+    Street CLOB ,
+    City       VARCHAR2 (50) ,
+    State      VARCHAR2 (50) ,
+    Zip                  VARCHAR2 (50) ,
+    Phone_Number         VARCHAR2 (50) ,
+    Sales_Agent_Agent_Id INTEGER
+  ) ;
+CREATE INDEX Buyer__IDX ON Buyer
+  ( Sales_Agent_Agent_Id ASC
+  ) ;
+ALTER TABLE BUYER ADD CONSTRAINT BUYER_PK PRIMARY KEY ( Buyer_Id ) ;
+
+
+
+CREATE TABLE BRANCH_OFFICE
+(
+  Office_Id   INTEGER NOT NULL ,
+  City VARCHAR2 (50) ,
+  Mailing_Address CLOB ,
+  Phone_Number VARCHAR2 (50) ,
+  Manager_Id   INTEGER
+) ;
+ALTER TABLE BRANCH_OFFICE ADD CONSTRAINT BRANCH_OFFICE_PK PRIMARY KEY ( Office_Id ) ;
+
+CREATE TABLE INTEREST
+  (
+    I_Id               INTEGER NOT NULL ,
+    Buyer_Buyer_Id   INTEGER NOT NULL ,
+    Property_List_No INTEGER NOT NULL
+  ) ;
+CREATE INDEX Interest__IDXv1 ON INTEREST
+  (
+    Buyer_Buyer_Id ASC ,
+    Property_List_No ASC
+  ) ;
+ALTER TABLE INTEREST ADD CONSTRAINT Interest__IDX PRIMARY KEY ( I_Id ) ;
+
+CREATE TABLE OFFER
+  (
+    Offer_Id         INTEGER NOT NULL ,
+    "Date"           DATE ,
+    Amount           VARCHAR2 (50) ,
+    Buyer_Buyer_Id   INTEGER NOT NULL,
+    Property_List_No INTEGER NOT NULL
+  ) ;
+CREATE INDEX Offer__IDX ON OFFER
+  (
+    Property_List_No ASC , Buyer_Buyer_Id ASC
+  )
+  ;
+  ALTER TABLE OFFER ADD CONSTRAINT Offer_PK PRIMARY KEY ( Offer_Id ) ;
+
+  CREATE TABLE CONTACT_PERSON
+  (
+    CP_Id           INTEGER NOT NULL ,
+    First_Name   VARCHAR2 (50) ,
+    Last_Name    VARCHAR2 (50) ,
+    Title        VARCHAR2 (50) ,
+    Phone_Number VARCHAR2 (50)
+  ) ;
+  ALTER TABLE CONTACT_PERSON ADD CONSTRAINT Cperson_PK PRIMARY KEY ( CP_Id ) ;
+
+CREATE TABLE PROPERTY
+  (
+    List_No INTEGER NOT NULL ,
+    Type    VARCHAR2 (50) ,
+    Street CLOB ,
+    City    VARCHAR2 (50) ,
+    State   VARCHAR2 (50) ,
+    Zip                  INTEGER ,
+    Price                VARCHAR2 (50) ,
+    Sales_Agent_Agent_Id INTEGER NOT NULL,
+    Seller_Seller_Id     INTEGER NOT NULL,
+    "Date"               DATE
+  ) ;
+CREATE INDEX Property__IDX ON PROPERTY
+  (
+    Sales_Agent_Agent_Id ASC ,
+    Seller_Seller_Id ASC
+  ) ;
+ALTER TABLE PROPERTY ADD CONSTRAINT Property_PK PRIMARY KEY ( List_No ) ;
+
+CREATE TABLE SALES_AGENT
+  (
+    Agent_Id                INTEGER NOT NULL ,
+    First_Name              VARCHAR2 (50) ,
+    Last_Name               VARCHAR2 (50) ,
+    Home_Number             VARCHAR2 (50) ,
+    Office_Extention_Number VARCHAR2 (50) ,
+    Branch_Office_Office_Id      INTEGER
+  ) ;
+CREATE INDEX Sales_Agent__IDX ON SALES_AGENT
+  ( BRANCH_OFFICE_Office_Id ASC
+  ) ;
+ALTER TABLE SALES_AGENT ADD CONSTRAINT Sales_Agent_PK PRIMARY KEY ( Agent_Id ) ;
+
+CREATE TABLE SELLER
+  (
+    Seller_Id  INTEGER NOT NULL ,
+    Name VARCHAR2 (55) ,
+    Street CLOB ,
+    City       VARCHAR2 (50) ,
+    State      VARCHAR2 (50) ,
+    Zip                       VARCHAR2 (50) ,
+    Phone_Number              VARCHAR2 (50) ,
+    Sales_Agent_Agent_Id      INTEGER NOT NULL,
+    Contact_Person_CP_Id         NUMBER
+  ) ;
+CREATE INDEX Seller__IDX ON Seller
+  (
+    CONTACT_PERSON_CP_Id ASC , SALES_AGENT_Agent_Id ASC
+  )
+  ;
+  ALTER TABLE SELLER ADD CONSTRAINT Seller_PK PRIMARY KEY ( Seller_Id ) ;
+
+
+
+ALTER TABLE BRANCH_OFFICE ADD CONSTRAINT OFFICE_CITY_UK UNIQUE (City);
+ALTER TABLE BRANCH_OFFICE MODIFY (City NOT NULL);
+
+ALTER TABLE SALES_AGENT MODIFY (Last_Name NOT NULL);
+ALTER TABLE SALES_AGENT MODIFY (First_Name NOT NULL);
+
+ALTER TABLE SELLER MODIFY (Name NOT NULL);
+
+ALTER TABLE BUYER MODIFY (Last_Name NOT NULL);
+ALTER TABLE BUYER MODIFY (First_Name NOT NULL);
+
+ALTER TABLE CONTACT_PERSON MODIFY (Last_Name NOT NULL);
+ALTER TABLE CONTACT_PERSON MODIFY (First_Name NOT NULL);
+
+
+
+ALTER TABLE BUYER ADD CONSTRAINT Buyer_Sales_Agent_FK FOREIGN KEY ( SALES_AGENT_Agent_Id ) REFERENCES SALES_AGENT ( Agent_Id ) ;
+
+
+
+ALTER TABLE PROPERTY ADD CONSTRAINT Property_Sales_Agent_FK FOREIGN KEY ( Sales_Agent_Agent_Id ) REFERENCES SALES_AGENT ( Agent_Id ) ;
+
+ALTER TABLE PROPERTY ADD CONSTRAINT Property_Seller_FK FOREIGN KEY ( Seller_Seller_Id ) REFERENCES SELLER ( Seller_Id ) ;
+
+ALTER TABLE INTEREST ADD CONSTRAINT FK_ASS_1 FOREIGN KEY ( BUYER_Buyer_Id ) REFERENCES BUYER ( Buyer_Id ) ;
+
+ALTER TABLE INTEREST ADD CONSTRAINT FK_ASS_2 FOREIGN KEY ( PROPERTY_List_No ) REFERENCES PROPERTY ( List_No ) ;
+
+ALTER TABLE OFFER ADD CONSTRAINT Offer_Buyer_FK FOREIGN KEY ( Buyer_Buyer_Id ) REFERENCES BUYER ( Buyer_Id ) ;
+
+ALTER TABLE OFFER ADD CONSTRAINT Offer_Property_FK FOREIGN KEY ( Property_List_No ) REFERENCES PROPERTY ( List_No ) ;
+
+ALTER TABLE SALES_AGENT ADD CONSTRAINT Sales_Agent_Branch_Office_FK FOREIGN KEY ( Branch_Office_Office_Id ) REFERENCES BRANCH_OFFICE ( Office_Id ) ;
+
+ALTER TABLE SELLER ADD CONSTRAINT Seller_Contact_Person_FK FOREIGN KEY ( Contact_Person_CP_Id ) REFERENCES CONTACT_PERSON ( CP_Id ) ;
+
+ALTER TABLE SELLER ADD CONSTRAINT Seller_Sales_Agent_FK FOREIGN KEY ( Sales_Agent_Agent_Id ) REFERENCES SALES_AGENT ( Agent_Id ) ;
+
+
+CREATE SEQUENCE Branch_Office_Office_Id_SEQ;
+CREATE SEQUENCE Interest_I_Id_SEQ;
+CREATE SEQUENCE Contact_Person_CP_Id_SEQ;
+CREATE SEQUENCE Offer_Offer_Id_SEQ;
+
+ALTER TABLE Buyer DISABLE CONSTRAINT Buyer_Sales_Agent_FK;
+ALTER TABLE Offer DISABLE CONSTRAINT Offer_Buyer_FK;
+ALTER TABLE Offer DISABLE CONSTRAINT Offer_Property_FK;
+ALTER TABLE Sales_Agent DISABLE CONSTRAINT Sales_Agent_Branch_Office_FK;
+ALTER TABLE Seller DISABLE CONSTRAINT Seller_Contact_Person_FK;
+ALTER TABLE Seller DISABLE CONSTRAINT Seller_Sales_Agent_FK;
+ALTER TABLE Property DISABLE CONSTRAINT Property_Sales_Agent_FK;
+ALTER TABLE Property DISABLE CONSTRAINT Property_Seller_FK;
+ALTER TABLE Interest DISABLE CONSTRAINT FK_ASS_1;
+ALTER TABLE Interest DISABLE CONSTRAINT FK_ASS_2;
+
+INSERT INTO BRANCH_OFFICE VALUES(Branch_Office_Office_Id_SEQ.NEXTVAL,'Williamsburg','PO Box 122',4330009,10);
+INSERT INTO BRANCH_OFFICE VALUES(Branch_Office_Office_Id_SEQ.NEXTVAL,'Elkton','PO Box 333',4012222,30);
+INSERT INTO BRANCH_OFFICE VALUES(Branch_Office_Office_Id_SEQ.NEXTVAL,'Bridgewater','Po Box 566',3220909,50);
+
+INSERT INTO SELLER  VALUES (1,'Al Able','500 Maple','Elkton','VA',31102,4011111,10,null);
+INSERT INTO SELLER  VALUES (2,'Bob Bodkin','410 South','Williamsburg','VA',22801,4332222,10,null);
+INSERT INTO SELLER  VALUES (3,'Dominion National Bank','314 N. Main','Williamsburg','VA',22801,4333333,20,1);
+INSERT INTO SELLER  VALUES (4,'Bob Ellis','300 Westover','Williamsburg','VA',22801,4335555,30,null);
+INSERT INTO SELLER  VALUES (5,'Jill Turner','105 Market','Bridgewater','VA',22900,3226789,30,null);
+INSERT INTO SELLER  VALUES (6,'Paula Jones','902 Park','Bridgewater','VA',22900,3229011,60,null);
+INSERT INTO SELLER  VALUES (7,'Tammy Miller','230 Mt. Clinton','Williamsburg','VA',22801,5680000,10,null);
+INSERT INTO SELLER  VALUES (8,'First National Bank','109 E. Main','Bridgewater','VA',22900,3224444,20,2);
+
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('13-APR-14','DD-MON-RR'),155000,540,103);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('08-APR-14','DD-MON-RR'),190000,530，101);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('22-APR-14','DD-MON-RR'),32000,510,102);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('01-APR-14','DD-MON-RR'),29000,550,106);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('11-APR-14','DD-MON-RR'),105000,560，111);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('12-APR-14','DD-MON-RR'),200000,590，108);
+INSERT INTO OFFER VALUES(Offer_Offer_Id_SEQ.NEXTVAL,to_date('17-APR-14','DD-MON-RR'),115550,550，109);
+
+INSERT INTO BUYER VALUES(500,'Gene','Guall','12 Oak La','Ekton','VA',31102,4015522,10);
+INSERT INTO BUYER VALUES(510,'Bob','Smith','367 Divot','Ekton','VA',31102,4012222,null);
+INSERT INTO BUYER VALUES(520,'Ina','Ingle','266 Snowbird','Willamsburg','VA',22801,4349999,60);
+INSERT INTO BUYER VALUES(530,'Jill','Jenkins','1966 Westover','Willamsburg','VA',22801,4340000,10);
+INSERT INTO BUYER VALUES(540,'Kim','Kemper','399 Market','Bridgewater','VA',22900,4341000,20);
+INSERT INTO BUYER VALUES(550,'Jane','Johnson','456 Lakeview','Willamsburg','VA',22801,4335555,70);
+INSERT INTO BUYER VALUES(560,'Mike','Miller','872 Arrowhead','Willamsburg','VA',22801,4333000,20);
+INSERT INTO BUYER VALUES(570,'Nelson','Jones','126 E. Market','Willamsburg','VA',22801,4334567,30);
+INSERT INTO BUYER VALUES(580,'Polly','Paul','411 Duke','Bridgewater','VA',22900,4341234,null);
+INSERT INTO BUYER VALUES(590,'Bob','Smith','196 Phillips','Willamsburg','VA',22801,4341122,60);
+INSERT INTO BUYER VALUES(600,'Tom','Turk','888 Market','Bridgewater','VA',22900,4343344,70);
+
+INSERT INTO CONTACT_PERSON VALUES(Contact_Person_CP_Id_SEQ.NEXTVAL,'Robert', 'Dike','Vice President',4339922);
+INSERT INTO CONTACT_PERSON VALUES(Contact_Person_CP_Id_SEQ.NEXTVAL,'Laura', 'Lamb','Loan Officer',4333434);
+
+INSERT INTO SALES_AGENT VALUES(10,'Jane','Smith',111,4331010,1);
+INSERT INTO SALES_AGENT VALUES(20,'Ellen','Davis',222,4342000,1);
+INSERT INTO SALES_AGENT VALUES(30,'Frank','Ramey',333,4017777,2);
+INSERT INTO SALES_AGENT VALUES(40,'Paul','Jones',444,4018010,2);
+INSERT INTO SALES_AGENT VALUES(50,'Alfred','Baker',555,6683011,3);
+INSERT INTO SALES_AGENT VALUES(60,'Mollie','Brown',666,5689021,null);
+INSERT INTO SALES_AGENT VALUES(70,'Sarah','Parket',777,4018765,null);
+INSERT INTO SALES_AGENT VALUES(80,'Thomas','Pill',434,4037781,1);
+
+
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,500,101);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,500,102);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,500,103);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,530,101);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,530,102);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,530,106);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,520,101);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,520,106);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,520,107);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,570,106);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,570,111);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,540,102);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,540,107);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,540,111);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,560,102);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,590,106);
+INSERT INTO INTEREST VALUES(Interest_I_Id_SEQ.NEXTVAL,590,111);
+
+
+
+INSERT INTO PROPERTY VALUES(101,'Single Family','104 South St.','Williamsburg','VA',22801,210000,10,1,to_date('05-JAN-13','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(102,'Building Lot','200 E. Main','Elkton','VA',31102,35000,10,2,to_date('08-FEB-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(103,'Single Family','300 W. Market','Williamsburg','VA',22801,200000,20,3,to_date('05-JAN-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(104,'Single Family','400 N. Maple','Elkton','VA',31102,175500,20,8,to_date('16-MAR-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(105,'Condo','500 E. Oak','Elkton','VA',31102,305600,20,8,to_date('05-DEC-13','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(106,'Building Lot','600 N. Dogwood','Williamsburg','VA',22801,32000,20,3,to_date('15-FEB-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(107,'Single Family','700 S. Crescent','Bridgewater','VA',22900,225000,30,4,to_date('20-APR-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(108,'Condo','800 Lakewood Dr','Elkton','VA',31102,235000,20,8,to_date('08-NOV-13','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(109,'Single Family','419 Maple','Williamsburg','VA',22801,125500,20,3,to_date('07-MAR-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(110,'Townhouse','902 Park','Bridgewater','VA',22900,119000,60,6,to_date('25-JAN-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(111,'Townhouse','677 Market','Elkton','VA',31102,115500,30,5,to_date('12-MAR-14','DD-MON-RR'));
+INSERT INTO PROPERTY VALUES(112,'Single Family','230 Mt. Clinton Pike','Williamsburg','VA',22801,135500,10,7,to_date('08-FEB-14','DD-MON-RR'));
+
+ALTER TABLE Sales_Agent ENABLE CONSTRAINT Sales_Agent_Branch_Office_FK;
+ALTER TABLE Seller ENABLE CONSTRAINT Seller_Contact_Person_FK;
+ALTER TABLE Seller ENABLE CONSTRAINT Seller_Sales_Agent_FK;
+ALTER TABLE Property ENABLE CONSTRAINT Property_Sales_Agent_FK;
+ALTER TABLE Property ENABLE CONSTRAINT Property_Seller_FK;
+ALTER TABLE Interest ENABLE CONSTRAINT FK_ASS_1;
+ALTER TABLE Interest ENABLE CONSTRAINT FK_ASS_2;
+ALTER TABLE Buyer ENABLE CONSTRAINT Buyer_Sales_Agent_FK;
+ALTER TABLE Offer ENABLE CONSTRAINT Offer_Buyer_FK;
+ALTER TABLE Offer ENABLE CONSTRAINT Offer_Property_FK;
+--CREATE A TRIGGER
+create table BUYER_BK
+  (	"BUID" NUMBER,
+    "BUYERID" NUMBER,
+    "FIRSTNAME" VARCHAR2(50 CHAR),
+    "LASTNAME" VARCHAR2(50 CHAR),
+    "STREET" VARCHAR2(50 CHAR),
+    "CITY" VARCHAR2(50 CHAR),
+    "STATE" VARCHAR2(2 CHAR),
+    "ZIP" NUMBER,
+    "PHONE" NUMBER,
+    Update_Time date
+  );
+
+  CREATE or replace trigger buyer_record
+  before delete or insert or update on buyer
+  for each row
+  begin
+  insert into buyer_bk(buid, buyerId, Firstname, LastName, Street, City, State, Zip, Phone, Update_Time)
+    valueS(:OLD.buid, :OLD.buyerId, :OLD.Firstname, :OLD.LastName, :OLD.Street, :OLD.City, :OLD.State, :OLD.Zip, :OLD.Phone, SYSDATE);
+    END;
+
+    --  BUYER
+
+    ALTER TABLE BUYER
+    ADD(CREATED_DATE DATE);
+    ALTER TABLE BUYER
+    ADD(CREATED_BY VARCHAR2(30) );
+    ALTER TABLE BUYER
+    ADD(UPDATED_DATE DATE);
+    ALTER TABLE BUYER
+    ADD(UPDATED_BY VARCHAR2(30) );
+
+    CREATE OR REPLACE TRIGGER BUYERS_TIME_RECORD
+    BEFORE INSERT OR UPDATE ON BUYER
+    FOR EACH ROW
+    BEGIN
+    IF INSERTING THEN
+    :NEW.CREATED_BY := USER;
+    :NEW.CREATED_DATE := SYSDATE;
+    END IF;
+
+    IF UPDATING THEN
+    ：NEW.UPDATED_BY := USER;
+    : NEW.UPDATED_BY :=SYSDATE;
+    END IF;
+    END;
+
+-- Oracle SQL Developer Data Modeler Summary Report:
+--
+-- CREATE TABLE                             8
+-- CREATE INDEX                             6
+-- ALTER TABLE                             18
+-- CREATE VIEW                              0
+-- CREATE PACKAGE                           0
+-- CREATE PACKAGE BODY                      0
+-- CREATE PROCEDURE                         0
+-- CREATE FUNCTION                          0
+-- CREATE TRIGGER                           1
+-- ALTER TRIGGER                            0
+-- CREATE COLLECTION TYPE                   0
+-- CREATE STRUCTURED TYPE                   0
+-- CREATE STRUCTURED TYPE BODY              0
+-- CREATE CLUSTER                           0
+-- CREATE CONTEXT                           0
+-- CREATE DATABASE                          0
+-- CREATE DIMENSION                         0
+-- CREATE DIRECTORY                         0
+-- CREATE DISK GROUP                        0
+-- CREATE ROLE                              0
+-- CREATE ROLLBACK SEGMENT                  0
+-- CREATE SEQUENCE                          1
+-- CREATE MATERIALIZED VIEW                 0
+-- CREATE SYNONYM                           0
+-- CREATE TABLESPACE                        0
+-- CREATE USER                              0
+--
+-- DROP TABLESPACE                          0
+-- DROP DATABASE                            0
+--
+-- REDACTION POLICY                         0
+--
+-- ERRORS                                   0
+-- WARNINGS                                 0
